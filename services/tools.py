@@ -83,8 +83,6 @@ class S3Helper(object):
         if not upload_dir:
             upload_dir = uuid4().hex
 
-        total_chunks = os.path.getsize(file_path) // chunk_size + 1
-
         s3_file_path = os.path.join(
             upload_dir,
             uuid4().hex
@@ -107,16 +105,14 @@ class S3Helper(object):
                 parts_etag[str(chunk_idx)] = result['ETag']
 
                 chunk_idx += 1
-                yield ((chunk_idx - 1) / total_chunks,
-                       self._endpoint(s3_file_path))
+                yield chunk_idx - 1, self._endpoint(s3_file_path)
 
         mp.complete(
             MultipartUpload={
                 'Parts': [{'ETag': parts_etag[str(idx)],
                            'PartNumber': idx}
                           for idx in range(1, chunk_idx)]})
-        yield ((chunk_idx - 1) / total_chunks,
-               self._endpoint(s3_file_path))
+        yield chunk_idx - 1, self._endpoint(s3_file_path)
 
     def _endpoint(self, file_path: str) -> str:
         return os.path.join('http://s3-{}.amazonaws.com'.format(self.region),
