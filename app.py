@@ -2,18 +2,22 @@
 import os
 import tempfile
 
-from flask import Flask, request, render_template, flash, send_file, abort, Response
+from flask import (Flask, request,
+                   render_template, flash,
+                   send_file, abort, Response)
 from flask_wtf import Form
 from flask_wtf.file import FileField
 from flask_bootstrap import Bootstrap
 from werkzeug import secure_filename, formparser
 
+from flask_heroku import Heroku
 from services.tools import S3Helper
 
 template_dir = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'templates')
 
 app = Flask(__name__, template_folder=template_dir)
+app = Heroku(app)
 app.config.from_object('config')
 app.debug = True
 
