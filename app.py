@@ -17,7 +17,7 @@ template_dir = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'templates')
 
 app = Flask(__name__, template_folder=template_dir)
-app = Heroku(app)
+app = Heroku(app).app
 app.config.from_object('config')
 app.debug = True
 
