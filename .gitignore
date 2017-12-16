@@ -1,0 +1,16 @@
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+keys.py
+__pycache__/
+*.gif
+*.mp4
+*.npy
+*.zip
+*.json*
+*.pdf
+*.png
+*Pipfile*
