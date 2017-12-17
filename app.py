@@ -43,8 +43,7 @@ def index():
         flash('{src} uploaded to S3 as {dst}'.format(
             src=form.upload.data.filename, dst=endpoint))
         result = api_summarize.delay(endpoint)
-        flash(result)
-        flash(f'{result} to gfycat')
+        flash(f'{result["webmUrl"]} to gfycat')
     return render_template('index.html', form=form)
 
 @celery.task
