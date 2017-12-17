@@ -55,7 +55,7 @@ def index():
         for progress, endpoint in s3.upload_stream(form.upload.data,
                                                    upload_dir='test'):
             socketio.emit('progress',
-                          {'state': 'UPLOADING'},
+                          {'state': f'UPLOADING {progress} {endpoint}'},
                           namespace='/test')
         api_summarize.delay(endpoint)
         socketio.emit('progress',
@@ -77,6 +77,7 @@ def api_summarize(endpoint: str) -> Dict:
     socketio.emit('progress',
                   {'state': 'SUCCESS', 'result': r.json()},
                   namespace='/test')
+
 
 @socketio.on('my_event', namespace='/test')
 def test_message(message):
