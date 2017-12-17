@@ -44,7 +44,7 @@ def index():
     return render_template('index.html', form=form)
 
 
-def summarize(endpoint: str) -> Dict:
+def api_summarize(endpoint: str) -> Dict:
     end_path = os.path.join(*PurePath(endpoint).parts[-2:])
     r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
                      f'production/video/{end_path}')
