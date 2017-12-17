@@ -4,7 +4,6 @@ from pathlib import PurePath
 import tempfile
 from typing import Dict
 
-import eventlet
 from flask import (Flask, request,
                    render_template, flash,
                    send_file, abort, Response,
@@ -20,8 +19,6 @@ from celery_utils import make_celery
 from flask_heroku import Heroku
 from services.tools import S3Helper
 
-eventlet.monkey_patch()
-
 template_dir = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'templates')
 
@@ -30,8 +27,7 @@ app = Heroku(app).app
 app.config.from_object('config')
 
 Bootstrap(app)
-socketio = SocketIO(app,
-                    async_mode='eventlet')
+socketio = SocketIO(app)
                     #message_queue='redis://localhost:6379/0')
 
 s3 = S3Helper(app.config)
@@ -52,12 +48,12 @@ def index():
             print(progress, endpoint)
         #flash('{src} uploaded to S3 as {dst}'.format(
             #src=form.upload.data.filename, dst=endpoint))
-        task = api_summarize.delay(endpoint)
+        api_summarize.delay(endpoint)
         #flash(f'{result["webmUrl"]} to gfycat')
 
-    #return render_template('index.html', form=form)
-    status_url = url_for('taskstatus', task_id=task.id) if task else None
-    return render_template('index.html', form=form, status_url=status_url)
+    return render_template('index.html', form=form)
+    #status_url = url_for('taskstatus', task_id=task.id) if task else None
+    #return render_template('index.html', form=form, status_url=status_url)
     #return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                   #task_id=task.id)}
 
