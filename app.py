@@ -11,6 +11,7 @@ from flask import (Flask, request,
 from flask_wtf import Form
 from flask_wtf.file import FileField
 from flask_bootstrap import Bootstrap
+from flask_socketio import SocketIO
 import requests
 from werkzeug import secure_filename, formparser
 
@@ -26,6 +27,7 @@ app = Heroku(app).app
 app.config.from_object('config')
 
 Bootstrap(app)
+socketio = SocketIO(app, message_queue='redis://localhost:6379/0')
 
 s3 = S3Helper(app.config)
 celery = make_celery(app)
@@ -54,25 +56,20 @@ def index():
     #return jsonify({}), 202, {'Location': url_for('taskstatus',
                                                   #task_id=task.id)}
 
-@celery.task(bind=True)
+@celery.task()
 def api_summarize(self, endpoint: str) -> Dict:
     end_path = os.path.join(*PurePath(endpoint).parts[-2:])
-    self.update_state(state='PROGRESS')
+    socketio.emit('my response',
+                  {'state': 'PENDING'},
+                  namespace='/test')
     r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
                      f'production/video/{end_path}',
                      headers={'x-api-key': 'aEyKJXgWXv65RRsAW5234Xsf3DuzMdF1oOhBI5Sa'})
-    return {'result': r.json(), 'state': 'SUCCESS'}
-
-
-@app.route('/status/<task_id>')
-def taskstatus(task_id: str):
-    task = api_summarize.AsyncResult(task_id)
-    base_response = {'state': task.state}
-    if task.state == 'SUCCESS':
-        return jsonify({**base_response, 'result': task.info['result']})
-    else:
-        return jsonify(base_response)
+    socketio.emit('my response',
+                  {'state': 'SUCCESS', 'result': r.json()},
+                  namespace='/test')
 
 
 if __name__ == '__main__':
-    app.run()
+    #app.run()
+    socketio.run(app)
