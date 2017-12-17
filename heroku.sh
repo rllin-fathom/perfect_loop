@@ -1,2 +1,2 @@
 celery worker -A app.celery &
-gunicorn -k eventlet app:app --log-file=- --log-level=DEBUG
+gunicorn app:app --worker-class eventlet --log-file=- --log-level=DEBUG
