@@ -64,34 +64,9 @@ def api_summarize(self, endpoint: str) -> Dict:
 
 
 @app.route('/status/<task_id>')
-def taskstatus(task_id):
+def taskstatus(task_id: str):
     task = api_summarize.AsyncResult(task_id)
-    if task.state == 'PENDING':
-        # job did not start yet
-        response = {
-            'state': task.state,
-            'current': 0,
-            'total': 1,
-            'status': 'Pending...'
-        }
-    elif task.state != 'FAILURE':
-        response = {
-            'state': task.state,
-            'current': task.info.get('current', 0),
-            'total': task.info.get('total', 1),
-            'status': task.info.get('status', '')
-        }
-        if 'result' in task.info:
-            response['result'] = task.info['result']
-    else:
-        # something went wrong in the background job
-        response = {
-            'state': task.state,
-            'current': 1,
-            'total': 1,
-            'status': str(task.info),  # this is the exception raised
-        }
-    return jsonify(response)
+    return jsonify({'state': task.state})
 
 
 if __name__ == '__main__':
