@@ -39,6 +39,7 @@ def index():
     form = UploadForm()
     task = None
     if form.validate_on_submit():
+        print('submitted: ', form.upload.data)
         for progress, endpoint in s3.upload_stream(form.upload.data,
                                                    upload_dir='test'):
             print(progress, endpoint)
@@ -67,10 +68,10 @@ def api_summarize(self, endpoint: str) -> Dict:
 def taskstatus(task_id: str):
     task = api_summarize.AsyncResult(task_id)
     base_response = {'state': task.state}
-    if task.state == 'PENDING':
-        return jsonify(base_response)
-    elif task.state == 'SUCCESS':
+    if task.state == 'SUCCESS':
         return jsonify({**base_response, 'result': task.info['result']})
+    else:
+        return jsonify(base_response)
 
 
 if __name__ == '__main__':
