@@ -10,13 +10,15 @@ class Heroku(object):
 
     def assign_configs(self) -> None:
         if 'HEROKU_API_KEY' in os.environ:
+            print('Using credentials from heroku')
             import heroku3
             heroku_conn = heroku3.from_key(os.environ.get('HEROKU_API_KEY'))
             config = heroku_conn.app('cummary').config().to_dict()
         else:
-            config = {k: v for k, v in os.environ.items()
+            print('Using credentials from local environment')
+            config = {k: v
+                      for k, v in os.environ.items()
                       if 'HEROKU_' in k}
 
         for key, value in config.items():
             self.app.config.setdefault(key.lstrip('HEROKU_'), value)
-

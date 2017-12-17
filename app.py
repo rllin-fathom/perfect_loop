@@ -1,6 +1,7 @@
 """Serves frontend"""
 import os
 import tempfile
+from typing import Dict
 
 from flask import (Flask, request,
                    render_template, flash,
@@ -37,7 +38,18 @@ def index():
             print(progress, endpoint)
         flash('{src} uploaded to S3 as {dst}'.format(
             src=form.upload.data.filename, dst=endpoint))
+        result = api_summarize()
+        flash(result)
+        flash(f'{result} to gfycat')
     return render_template('index.html', form=form)
+
+
+def summarize(endpoint: str) -> Dict:
+    end_path = os.path.join(*PurePath(endpoint).parts[-2:])
+    r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
+                     f'production/video/{end_path}')
+    print(r.json())
+    return r.json()
 
 
 if __name__ == '__main__':

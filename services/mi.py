@@ -2,6 +2,7 @@
 from functools import partial
 from itertools import islice, chain
 import os
+import tempfile
 from typing import Iterator, Tuple, List
 
 import imageio
@@ -159,18 +160,11 @@ def video_to_s3(file_path: str, s3, max_gifs = 1):
 
 
 def scenes_to_summary(vid, scenes, fps, upload_dir, max_scenes):
-    out_path = 'summary.gif'
     scenes_images = islice(scenes_to_images(vid, scenes), max_scenes)
     # TODO: replace with a gif writer that can write frame by frame.
     images = list(chain.from_iterable(scene
                                       for scene, _, _ in scenes_images))
-    to_gif(images, out_path, fps)
-    return out_path
-
-
-    #file_path = s3.upload(out_path, upload_dir=upload_dir)
-    #print('uploaded:', file_path)
-    #return file_path
+    return images
 
 
 def video_to_summary(file_path: str,
@@ -182,12 +176,15 @@ def video_to_summary(file_path: str,
     mis = video_to_mi(vid)
     boundaries = trimmed_local_mean(mis, 24, 1.4)
     segs = segments(boundaries, int(24 * min_scene_secs))
-    out_path = scenes_to_summary(vid=vid,
-                                 scenes=segs,
-                                 fps=48,
-                                 upload_dir=upload_dir,
-                                 max_scenes=max_scenes)
-    return gfy_client.upload_from_file(file_path=out_path)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        out_path = os.path.join(tmp_dir, 'summary.gif')
+        images = scenes_to_summary(vid=vid,
+                                   scenes=segs,
+                                   fps=48,
+                                   upload_dir=upload_dir,
+                                   max_scenes=max_scenes)
+        to_gif(images, out_path, 48)
+        return gfy_client.upload_from_file(file_path=out_path)
 
 
 
