@@ -33,6 +33,7 @@ socketio = SocketIO(app)
 s3 = S3Helper(app.config)
 celery = make_celery(app)
 
+
 class UploadForm(Form):
     upload = FileField('Upload File')
 
@@ -49,13 +50,8 @@ def index():
         #flash('{src} uploaded to S3 as {dst}'.format(
             #src=form.upload.data.filename, dst=endpoint))
         api_summarize.delay(endpoint)
-        #flash(f'{result["webmUrl"]} to gfycat')
 
     return render_template('index.html', form=form)
-    #status_url = url_for('taskstatus', task_id=task.id) if task else None
-    #return render_template('index.html', form=form, status_url=status_url)
-    #return jsonify({}), 202, {'Location': url_for('taskstatus',
-                                                  #task_id=task.id)}
 
 @celery.task()
 def api_summarize(self, endpoint: str) -> Dict:
