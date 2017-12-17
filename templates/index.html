@@ -32,8 +32,10 @@
         namespace = '/test';
         var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
         socket.on('my response', function(msg) {
-            console.log('Received: ' + msg.data);
-            $('#log').append('Received: ' + msg.data + '<br>');
+            console.log('Received: ' + msg.state);
+            if (msg.state == 'SUCCESS') {
+              console.log('Received: ' + msg.result);
+            }
         });
       });
     </script>

@@ -11,3 +11,4 @@ heroku3
 celery
 redis
 flask-socketio
+eventlet
