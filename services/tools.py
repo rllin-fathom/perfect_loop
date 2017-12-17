@@ -9,6 +9,7 @@ import os
 import boto3
 from flask import current_app as app
 from flask import request, abort
+from werkzeug import FileStorage
 from werkzeug.utils import secure_filename
 
 
@@ -76,17 +77,17 @@ class S3Helper(object):
         return self._endpoint(s3_file_path)
 
     def upload_stream(self,
-                      file_path: str,
+                      stream: FileStorage,
                       upload_dir: str = None,
                       chunk_size: int = 5 * 1024 * 1024,
                       progress: bool = False) -> str:
         if not upload_dir:
             upload_dir = uuid4().hex
 
+        ext = os.path.splitext(secure_filename(stream.name))[1]
         s3_file_path = os.path.join(
             upload_dir,
-            uuid4().hex
-            + os.path.splitext(file_path)[1])
+            uuid4().hex + ext)
 
         bucket = self.resource.Object(self.bucket, s3_file_path)
         mp = bucket.initiate_multipart_upload(ACL='public-read')
@@ -94,18 +95,17 @@ class S3Helper(object):
 
         parts_etag = {}
         chunk_idx = 1
-        with open(file_path, 'rb') as stream:
-            while True:
-                chunk = stream.read(chunk_size)
-                if not chunk:
-                    break
+        while True:
+            chunk = stream.read(chunk_size)
+            if not chunk:
+                break
 
-                part = mp.Part(chunk_idx)
-                result = part.upload(Body=chunk)
-                parts_etag[str(chunk_idx)] = result['ETag']
+            part = mp.Part(chunk_idx)
+            result = part.upload(Body=chunk)
+            parts_etag[str(chunk_idx)] = result['ETag']
 
-                chunk_idx += 1
-                yield chunk_idx - 1, self._endpoint(s3_file_path)
+            chunk_idx += 1
+            yield chunk_idx - 1, self._endpoint(s3_file_path)
 
         mp.complete(
             MultipartUpload={

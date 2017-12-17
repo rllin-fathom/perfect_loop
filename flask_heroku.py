@@ -9,6 +9,14 @@ class Heroku(object):
             self.assign_configs()
 
     def assign_configs(self) -> None:
-        for key, value in os.environ.items():
-            if 'HEROKU_' in key:
-                self.app.config.setdefault(key.lstrip('HEROKU_'), value)
+        if 'HEROKU_API_KEY' in os.environ:
+            import heroku3
+            heroku_conn = heroku3.from_key(os.environ.get('HEROKU_API_KEY'))
+            config = heroku_conn.app('cummary').config().to_dict()
+        else:
+            config = {k: v for k, v in os.environ.items()
+                      if 'HEROKU_' in k}
+
+        for key, value in config.items():
+            self.app.config.setdefault(key.lstrip('HEROKU_'), value)
+

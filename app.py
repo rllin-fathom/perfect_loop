@@ -33,8 +33,8 @@ class UploadForm(Form):
 def index():
     form = UploadForm()
     if form.validate_on_submit():
-        source_filename = secure_filename(form.upload.data.filename)
-        for progress, endpoint in s3.upload_stream(source_filename,
+        print('data: ', form.upload.data)
+        for progress, endpoint in s3.upload_stream(form.upload.data,
                                                    upload_dir='test'):
             print(progress, endpoint)
         flash('{src} uploaded to S3 as {dst}'.format(
