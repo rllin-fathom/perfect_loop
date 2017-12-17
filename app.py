@@ -60,13 +60,17 @@ def api_summarize(self, endpoint: str) -> Dict:
     r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
                      f'production/video/{end_path}',
                      headers={'x-api-key': 'aEyKJXgWXv65RRsAW5234Xsf3DuzMdF1oOhBI5Sa'})
-    return {'result': r.json()}
+    return {'result': r.json(), state='SUCCESS'}
 
 
 @app.route('/status/<task_id>')
 def taskstatus(task_id: str):
     task = api_summarize.AsyncResult(task_id)
-    return jsonify({'state': task.state})
+    base_response = {'state': task.state}
+    if task.state == 'PENDING':
+        return jsonify(base_response)
+    elif task.state == 'SUCCESS':
+        return jsonify({**base_response, {'result': task.info['result']}
 
 
 if __name__ == '__main__':
