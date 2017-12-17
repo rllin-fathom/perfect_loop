@@ -18,6 +18,7 @@ from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO
 import requests
 from werkzeug import secure_filename, formparser
+from wtforms import SubmitField
 
 from celery_utils import make_celery
 from flask_heroku import Heroku
@@ -42,7 +43,7 @@ celery = make_celery(app)
 
 class UploadForm(Form):
     upload = FileField('Upload File')
-
+    submit_button = SubmitField('Upload')
 
 @app.route('/', methods=['POST', 'GET'])
 def index():

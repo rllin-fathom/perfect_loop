@@ -1,13 +1,15 @@
 {% extends "bootstrap/base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
-{% block navbar %}
-<div class="navbar navbar-fixed-top">
-</div>
-{% endblock %}
+{% import "bootstrap/wtf.html"  as wtf %}
 
 {% block content %}
 <div class="container">
-    {{ wtf.quick_form(form, action=url_for('index'), button_map={'submit_button': 'primary'}) }}
+  {{ wtf.quick_form(form,
+                    form_type='inline',
+                    method='post',
+                    action=url_for('index'),
+                    enctype='multipart/form-data',
+                    button_map={'submit_button': 'primary'})
+  }}
 </div>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
