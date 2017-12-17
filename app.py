@@ -9,6 +9,7 @@ from flask import (Flask, request,
 from flask_wtf import Form
 from flask_wtf.file import FileField
 from flask_bootstrap import Bootstrap
+import requests
 from werkzeug import secure_filename, formparser
 
 from flask_heroku import Heroku
@@ -38,7 +39,7 @@ def index():
             print(progress, endpoint)
         flash('{src} uploaded to S3 as {dst}'.format(
             src=form.upload.data.filename, dst=endpoint))
-        result = api_summarize()
+        result = api_summarize(endpoint)
         flash(result)
         flash(f'{result} to gfycat')
     return render_template('index.html', form=form)
@@ -47,7 +48,8 @@ def index():
 def api_summarize(endpoint: str) -> Dict:
     end_path = os.path.join(*PurePath(endpoint).parts[-2:])
     r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
-                     f'production/video/{end_path}')
+                     f'production/video/{end_path}',
+                     headers={'x-api-key': 'aEyKJXgWXv65RRsAW5234Xsf3DuzMdF1oOhBI5Sa'})
     print(r.json())
     return r.json()
 
