@@ -74,6 +74,7 @@ def api_summarize(self, endpoint: str) -> Dict:
 def test_message(message):
     print('message: ', message)
 
+
 if __name__ == '__main__':
     #app.run()
     socketio.run(app)
