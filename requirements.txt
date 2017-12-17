@@ -1,7 +1,7 @@
 zappa==0.43.1
 flask
 flask-wtf
-gunicorn==18.0
+gunicorn==19.7.1
 boto3
 requests
 flask-socketio
