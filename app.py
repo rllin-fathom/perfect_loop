@@ -1,5 +1,6 @@
 """Serves frontend"""
 import os
+from pathlib import PurePath
 import tempfile
 from typing import Dict
 
