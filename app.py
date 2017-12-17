@@ -5,6 +5,9 @@ import tempfile
 from typing import Dict
 
 import eventlet
+# monkey patch evenlet before requests
+# https://github.com/requests/requests/issues/3752#issuecomment-294603631
+eventlet.monkey_patch()
 from flask import (Flask, request,
                    render_template, flash,
                    send_file, abort, Response,
@@ -20,7 +23,6 @@ from celery_utils import make_celery
 from flask_heroku import Heroku
 from services.tools import S3Helper
 
-eventlet.monkey_patch()
 
 template_dir = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'templates')
