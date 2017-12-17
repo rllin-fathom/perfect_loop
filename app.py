@@ -57,14 +57,13 @@ def index():
             socketio.emit('progress',
                           {'state': 'UPLOADING'},
                           namespace='/test')
-        #flash('{src} uploaded to S3 as {dst}'.format(
-            #src=form.upload.data.filename, dst=endpoint))
         api_summarize.delay(endpoint)
         socketio.emit('progress',
                       {'state': 'JOB SUBMITTED'},
                       namespace='/test')
-        return
+        return ('', 204)
     return render_template('index.html', form=form)
+
 
 @celery.task()
 def api_summarize(endpoint: str) -> Dict:
