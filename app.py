@@ -60,7 +60,7 @@ def api_summarize(self, endpoint: str) -> Dict:
     r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
                      f'production/video/{end_path}',
                      headers={'x-api-key': 'aEyKJXgWXv65RRsAW5234Xsf3DuzMdF1oOhBI5Sa'})
-    return {'result': r.json()['webmUrl']}
+    return {'result': r.json()}
 
 
 @app.route('/status/<task_id>')
