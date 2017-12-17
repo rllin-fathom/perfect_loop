@@ -4,6 +4,7 @@ from pathlib import PurePath
 import tempfile
 from typing import Dict
 
+import eventlet
 from flask import (Flask, request,
                    render_template, flash,
                    send_file, abort, Response,
@@ -19,6 +20,8 @@ from celery_utils import make_celery
 from flask_heroku import Heroku
 from services.tools import S3Helper
 
+eventlet.monkey_patch()
+
 template_dir = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), 'templates')
 
@@ -28,7 +31,8 @@ app.config.from_object('config')
 
 Bootstrap(app)
 socketio = SocketIO(app,
-                    message_queue='redis://localhost:6379/0')
+                    async_mode='eventlet',
+                    message_queue=os.environ.get('REDIS_URL'))
 
 s3 = S3Helper(app.config)
 celery = make_celery(app)
@@ -69,6 +73,7 @@ def api_summarize(self, endpoint: str) -> Dict:
 @socketio.on('my_event', namespace='/test')
 def test_message(message):
     print('message: ', message)
+
 if __name__ == '__main__':
     #app.run()
     socketio.run(app)
