@@ -72,7 +72,7 @@ def api_summarize(endpoint: str) -> Dict:
     socketio.emit('progress',
                   {'state': 'PENDING'},
                   namespace='/test')
-    r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
+    r = requests.get(f'https://el96tth8t8.execute-api.us-west-2.amazonaws.com/production'
                      f'production/video/{end_path}',
                      headers={'x-api-key': 'NE7i8SV87n9kmAn1t8i1H2DHhL5x4pKq6pHloOiD'})
     socketio.emit('progress',
