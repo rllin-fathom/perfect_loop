@@ -70,7 +70,7 @@ def taskstatus(task_id: str):
     if task.state == 'PENDING':
         return jsonify(base_response)
     elif task.state == 'SUCCESS':
-        return jsonify({**base_response, {'result': task.info['result']}
+        return jsonify({**base_response, 'result': task.info['result']})
 
 
 if __name__ == '__main__':
