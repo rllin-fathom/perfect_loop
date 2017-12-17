@@ -13,6 +13,7 @@ from flask_bootstrap import Bootstrap
 import requests
 from werkzeug import secure_filename, formparser
 
+from celery_utils import make_celery
 from flask_heroku import Heroku
 from services.tools import S3Helper
 
@@ -26,6 +27,7 @@ app.config.from_object('config')
 Bootstrap(app)
 
 s3 = S3Helper(app.config)
+celery = make_celery(app)
 
 class UploadForm(Form):
     upload = FileField('Upload File')
@@ -40,12 +42,12 @@ def index():
             print(progress, endpoint)
         flash('{src} uploaded to S3 as {dst}'.format(
             src=form.upload.data.filename, dst=endpoint))
-        result = api_summarize(endpoint)
+        result = api_summarize.delay(endpoint)
         flash(result)
         flash(f'{result} to gfycat')
     return render_template('index.html', form=form)
 
-
+@celery.task
 def api_summarize(endpoint: str) -> Dict:
     end_path = os.path.join(*PurePath(endpoint).parts[-2:])
     r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
@@ -53,7 +55,6 @@ def api_summarize(endpoint: str) -> Dict:
                      headers={'x-api-key': 'aEyKJXgWXv65RRsAW5234Xsf3DuzMdF1oOhBI5Sa'})
     print(r.json())
     return r.json()
-
 
 if __name__ == '__main__':
     app.run()

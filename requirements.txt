@@ -8,3 +8,5 @@ flask-socketio
 flask-bootstrap
 imageio
 heroku3
+celery
+redis
