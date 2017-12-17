@@ -31,8 +31,8 @@ app.config.from_object('config')
 
 Bootstrap(app)
 socketio = SocketIO(app,
-                    async_mode='eventlet',
-                    message_queue='redis://localhost:6379/0')
+                    async_mode='eventlet')
+                    #message_queue='redis://localhost:6379/0')
 
 s3 = S3Helper(app.config)
 celery = make_celery(app)
@@ -64,13 +64,13 @@ def index():
 @celery.task()
 def api_summarize(self, endpoint: str) -> Dict:
     end_path = os.path.join(*PurePath(endpoint).parts[-2:])
-    socketio.emit('my response',
+    socketio.emit('progress',
                   {'state': 'PENDING'},
                   namespace='/test')
     r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
                      f'production/video/{end_path}',
                      headers={'x-api-key': 'aEyKJXgWXv65RRsAW5234Xsf3DuzMdF1oOhBI5Sa'})
-    socketio.emit('my response',
+    socketio.emit('progress',
                   {'state': 'SUCCESS', 'result': r.json()},
                   namespace='/test')
 

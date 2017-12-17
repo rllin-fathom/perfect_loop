@@ -19,6 +19,7 @@ class Heroku(object):
             config = {k: v
                       for k, v in os.environ.items()
                       if 'HEROKU_' in k}
-
         for key, value in config.items():
             self.app.config.setdefault(key.lstrip('HEROKU_'), value)
+        self.app.config.setdefault('SECRET_KEY', os.urandom(1))
+
