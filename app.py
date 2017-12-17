@@ -33,7 +33,7 @@ class UploadForm(Form):
 def index():
     form = UploadForm()
     if form.validate_on_submit():
-        print('form': form)
+        print('form: ', form)
         print(form.upload)
         print('data: ', form.upload.data)
         for progress, endpoint in s3.upload_stream(form.upload.data,
