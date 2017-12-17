@@ -19,7 +19,6 @@
         socket.emit('my_event', {data: 'I\'m connected!'});
         $('#log').append('<br>' + $('<div/>').text('Connected!').html());
     });
-
     socket.on('progress', function(msg) {
         $('#log').append('<br>' + $('<div/>').text('Received: ' + msg.state).html());
         console.log('Received: ' + msg.state);
