@@ -63,7 +63,7 @@ def index():
         socketio.emit('progress',
                       {'state': 'JOB SUBMITTED'},
                       namespace='/test')
-
+        return
     return render_template('index.html', form=form)
 
 @celery.task()
@@ -74,7 +74,7 @@ def api_summarize(endpoint: str) -> Dict:
                   namespace='/test')
     r = requests.get(f'https://urybbutmbh.execute-api.us-west-2.amazonaws.com/'
                      f'production/video/{end_path}',
-                     headers={'x-api-key': 'aEyKJXgWXv65RRsAW5234Xsf3DuzMdF1oOhBI5Sa'})
+                     headers={'x-api-key': 'NE7i8SV87n9kmAn1t8i1H2DHhL5x4pKq6pHloOiD'})
     socketio.emit('progress',
                   {'state': 'SUCCESS', 'result': r.json()},
                   namespace='/test')
