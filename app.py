@@ -27,8 +27,8 @@ app = Heroku(app).app
 app.config.from_object('config')
 
 Bootstrap(app)
-socketio = SocketIO(app)
-                    #message_queue='redis://localhost:6379/0')
+socketio = SocketIO(app,
+                    message_queue='redis://localhost:6379/0')
 
 s3 = S3Helper(app.config)
 celery = make_celery(app)
@@ -66,7 +66,9 @@ def api_summarize(self, endpoint: str) -> Dict:
                   {'state': 'SUCCESS', 'result': r.json()},
                   namespace='/test')
 
-
+@socketio.on('my_event', namespace='/test')
+def test_message(message):
+    print('message: ', message)
 if __name__ == '__main__':
     #app.run()
     socketio.run(app)
