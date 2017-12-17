@@ -42,7 +42,7 @@
             if (msg.state == 'SUCCESS') {
               gif = msg.result['paths_to_gifs']['gifUrl']
               console.log('Received: ' + JSON.stringify(msg.result));
-              $('#log').append('<br><img src=' + gif + '/>')
+              $('#log').append('<br><img src="' + gif + '"/>')
             }
         });
       });
