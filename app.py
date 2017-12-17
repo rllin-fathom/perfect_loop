@@ -7,7 +7,7 @@ from typing import Dict
 from flask import (Flask, request,
                    render_template, flash,
                    send_file, abort, Response,
-                   url_for)
+                   url_for, jsonify)
 from flask_wtf import Form
 from flask_wtf.file import FileField
 from flask_bootstrap import Bootstrap
