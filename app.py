@@ -58,7 +58,7 @@ def index():
     return render_template('index.html', form=form)
 
 @celery.task()
-def api_summarize(self, endpoint: str) -> Dict:
+def api_summarize(endpoint: str) -> Dict:
     end_path = os.path.join(*PurePath(endpoint).parts[-2:])
     socketio.emit('progress',
                   {'state': 'PENDING'},
