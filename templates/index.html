@@ -33,9 +33,11 @@
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
         socket.on('connect', function() {
             socket.emit('my_event', {data: 'I\'m connected!'});
+            $('#log').append('<br>' + $('<div/>').text('Connected!').html());
         });
 
         socket.on('progress', function(msg) {
+            $('#log').append('<br>' + $('<div/>').text('Received: ' + msg.state).html());
             console.log('Received: ' + msg.state);
             if (msg.state == 'SUCCESS') {
               console.log('Received: ' + msg.result);
@@ -44,6 +46,8 @@
       });
     </script>
 
+    <h2>Receive:</h2>
+    <div id="log"></div>
 
   </body>
 </html>
