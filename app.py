@@ -19,7 +19,6 @@ template_dir = os.path.join(
 app = Flask(__name__, template_folder=template_dir)
 app = Heroku(app).app
 app.config.from_object('config')
-app.debug = True
 
 Bootstrap(app)
 
@@ -33,9 +32,6 @@ class UploadForm(Form):
 def index():
     form = UploadForm()
     if form.validate_on_submit():
-        print('form: ', form)
-        print(form.upload)
-        print('data: ', form.upload.data)
         for progress, endpoint in s3.upload_stream(form.upload.data,
                                                    upload_dir='test'):
             print(progress, endpoint)
