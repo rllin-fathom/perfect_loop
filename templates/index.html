@@ -40,7 +40,7 @@
             $('#log').append('<br>' + $('<div/>').text('Received: ' + msg.state).html());
             console.log('Received: ' + msg.state);
             if (msg.state == 'SUCCESS') {
-              console.log('Received: ' + msg.result);
+              console.log('Received: ' + JSON.stringify(msg.result));
             }
         });
       });

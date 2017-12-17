@@ -49,7 +49,9 @@ def index():
     form = UploadForm()
     task = None
     if form.validate_on_submit():
-        print('submitted: ', form.upload.data)
+        socketio.emit('progress',
+                      {'state': 'RECEIVED'},
+                      namespace='/test')
         for progress, endpoint in s3.upload_stream(form.upload.data,
                                                    upload_dir='test'):
             socketio.emit('progress',
@@ -58,6 +60,9 @@ def index():
         #flash('{src} uploaded to S3 as {dst}'.format(
             #src=form.upload.data.filename, dst=endpoint))
         api_summarize.delay(endpoint)
+        socketio.emit('progress',
+                      {'state': 'JOB SUBMITTED'},
+                      namespace='/test')
 
     return render_template('index.html', form=form)
 
