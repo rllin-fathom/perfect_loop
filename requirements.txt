@@ -1,14 +1,13 @@
 zappa==0.43.1
-flask
-flask-wtf
 gunicorn==19.7.1
 boto3
 requests
-flask-socketio
+flask
+flask-wtf
 flask-bootstrap
+flask-socketio
 imageio
 heroku3
 celery
 redis
-flask-socketio
 eventlet

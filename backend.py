@@ -17,16 +17,20 @@ app.config.from_object('config')
 s3 = S3Helper(app.config)
 gfy_client = GfyClient(app.config)
 
-@app.route('/video/<s3_folder>/<s3_file>', methods=['GET'])
-def transform(s3_folder: str, s3_file: str):
+@app.route('/video/<s3_folder>/<s3_file>/<duration>',
+           methods=['GET'])
+def transform(s3_folder: str,
+              s3_file: str,
+              duration: float):
     s3_key = os.path.join(s3_folder, s3_file)
     print('transform', s3_key)
 
     vid_filename = s3.download(s3_key)
 
     if vid_filename:
-        return jsonify(paths_to_gifs=video_to_summary(vid_filename,
-                                                      gfy_client=gfy_client))
+        return jsonify(paths_to_gifs=video_to_summary(file_path=vid_filename,
+                                                      gfy_client=gfy_client,
+                                                      duration=duration))
     else:
         abort(404)
 

@@ -7,7 +7,6 @@ from typing import Iterator, Tuple, List
 
 import imageio
 import numpy as np
-from .tools import S3Helper
 
 
 def joint_entropy(channel1, channel2, range1, range2, bins):
@@ -75,33 +74,52 @@ def mutual_information(matrices, bins):
     hists = [np.histogram(matrix, bins=bins, range=h_range)
              for matrix, h_range in zip(matrices, h_ranges)]
 
-    return (sum(entropy(hist) for hist, _ in hists)
-            - joint_entropy(*matrices, *h_ranges, bins))
+    entropy_1, entropy_2 = itertools.tee((entropy(hist) for hist, _ in hists), 2)
+    return (sum(entropy_1) - joint_entropy(*matrices, *h_ranges, bins),
+            *entropy_2)
 
 
 def video_to_mi(vid) -> Iterator[float]:
+    """Window frames into pairs and apply mutual information."""
     num_frames = len(vid)
-    #num_frames = 600
 
     windowed_frames = windowing(islice(vid, num_frames), 2)
-    bin_mi = partial(mutual_information, bins=256)
-    for idx, mii in enumerate(map(bin_mi, windowed_frames)):
-        yield sum(mii)
+    bin_ents = partial(mutual_information, bins=256)
+    for idx, (mii, ent, _) in enumerate(map(bin_ents, windowed_frames)):
+        yield sum(mii), ent
 
 
-def trimmed_local_mean(data, window_len, threshold) -> Iterator[int]:
+def trimmed_local_mean(data,
+                       window_len: int,
+                       threshold: float) -> Iterator[int]:
+    """Yields index where there is a sudden dip in mutual information."""
     m = np.ones(window_len)
     t_c = window_len // 2
     m[t_c] = 0
-    for idx, window in enumerate(windowing(data, window_len)):
-        if sum(m * window) / (window_len - 1) / window[t_c] >= threshold:
+    for idx, (mis, ents) in enumerate(windowing(data, window_len)):
+        if sum(m * mis) / (window_len - 1) / window[t_c] >= threshold:
             yield idx + t_c
 
 
-def segments(boundaries, min_frames: int) -> Iterator[Tuple[int, int]]:
+def segments(boundaries,
+             min_frames: int,
+             offset: float = None,
+             limit: float = None) -> Iterator[Tuple[int, int]]:
+    """Return boundary (start, end) when start - end >= min_frames.
+
+    With offset and limit %.
+
+    """
     for start, end in windowing(boundaries, 2):
+        if offset:
+            assert 0.0 <= offset <= 1.0
+            start += int((end - start) * offset)
+        if limit:
+            assert 0.0 <= limit <= 1.0
+            end = start + int((end - start) * limit)
         if end - start >= min_frames:
             yield (start, end)
+
 
 def scenes_to_images(vid, scenes):
     frame_idx = 0
@@ -169,21 +187,25 @@ def scenes_to_summary(vid, scenes, fps, upload_dir, max_scenes):
 
 def video_to_summary(file_path: str,
                      gfy_client,
-                     min_scene_secs: int = 2,
-                     max_scenes: int = 2) -> List[str]:
+                     duration: float,
+                     min_scene_secs: int,
+                     max_scenes: int) -> List[str]:
     upload_dir = os.path.basename(os.path.dirname(file_path))
+
     vid = imageio.get_reader(file_path, 'ffmpeg')
-    mis = video_to_mi(vid)
-    boundaries = trimmed_local_mean(mis, 24, 1.4)
-    segs = segments(boundaries, int(24 * min_scene_secs))
+    mis, ents = video_to_mi(vid)
+    boundaries = trimmed_local_mean(mis, window_len=24, threshold=1.4)
+    segs = segments(boundaries,
+                    min_frames=int(24 * min_scene_secs),
+                    offset=0.15)
     with tempfile.TemporaryDirectory() as tmp_dir:
         out_path = os.path.join(tmp_dir, 'summary.gif')
         images = scenes_to_summary(vid=vid,
                                    scenes=segs,
-                                   fps=48,
+                                   fps=24,
                                    upload_dir=upload_dir,
                                    max_scenes=max_scenes)
-        to_gif(images, out_path, 48)
+        to_gif(images, out_path, 24)
         return gfy_client.upload_from_file(file_path=out_path)
 
 

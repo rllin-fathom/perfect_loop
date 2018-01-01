@@ -74,7 +74,7 @@ def api_summarize(endpoint: str) -> Dict:
                   namespace='/test')
     r = requests.get(f'https://el96tth8t8.execute-api.us-west-2.amazonaws.com/'
                      f'production/video/{end_path}',
-                     headers={'x-api-key': 'NE7i8SV87n9kmAn1t8i1H2DHhL5x4pKq6pHloOiD'})
+                     headers={'x-api-key': '11DgWhyjSt19rBujkY7c34FA79LbRrfbanjG0R2U'})
     socketio.emit('progress',
                   {'state': 'SUCCESS', 'result': r.json()},
                   namespace='/test')
