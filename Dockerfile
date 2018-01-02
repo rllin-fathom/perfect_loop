@@ -12,7 +12,8 @@ ENV PYTHONDONTWRITEBYTECODE true
 RUN git clone https://github.com/yyuu/pyenv.git /root/.pyenv && \
     cd /root/.pyenv && \
     git checkout `git describe --abbrev=0 --tags`
-RUN pyenv install 3.6.4rc1 && pyenv global 3.6.4rc1
+RUN pyenv install 3.6.3
+RUN pyenv global 3.6.3
 
 # Add and install Python modules
 ADD requirements.txt /src/requirements.txt
