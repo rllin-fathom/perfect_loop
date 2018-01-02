@@ -4,10 +4,9 @@ FROM ubuntu:16.04
 RUN apt-get update -y
 
 # Install Python Setuptools
-RUN apt-get install -y setuptools
-
-# Install pip
-RUN easy_install pip
+RUN apt-get install -y build-essential
+RUN apt-get install -y python3-dev
+RUN apt-get install -y python3-pip
 
 # Add and install Python modules
 ADD requirements.txt /src/requirements.txt
