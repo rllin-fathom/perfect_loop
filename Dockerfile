@@ -3,16 +3,15 @@ FROM ubuntu:16.04
 # Update packages
 RUN apt-get update -y
 
-# Install Python Setuptools
-RUN apt-get install -y build-essential
 ENV PYENV_ROOT /root/.pyenv
-ENV PATH /root/.pyenv/shims:/root/.pyenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-RUN apt-get update && \
-    apt-get install -y git mercurial build-essential libssl-dev libbz2-dev libreadline-dev libsqlite3-dev curl && \
-    curl -L https://raw.githubusercontent.com/yyuu/pyenv-installer/master/bin/pyenv-installer | bash
+ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 
-RUN pyenv install 3.6.5
-RUN pyenv global 3.6.5
+ENV PYTHONDONTWRITEBYTECODE true
+RUN git clone https://github.com/yyuu/pyenv.git /root/.pyenv && \
+    cd /root/.pyenv && \
+    git checkout `git describe --abbrev=0 --tags`
+RUN pyenv install && \
+    pyenv global 3.6.5
 
 # Add and install Python modules
 ADD requirements.txt /src/requirements.txt
