@@ -2,6 +2,8 @@ FROM ubuntu:16.04
 
 # Update packages
 RUN apt-get update -y
+RUN apt-get install -y git build-essential git-core libbz2-dev libreadline-dev
+RUN apt-get install -y libsqlite3-dev libssl-dev llvm make zlib1g-dev
 
 ENV PYENV_ROOT /root/.pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
