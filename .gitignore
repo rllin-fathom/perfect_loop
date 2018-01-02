@@ -9,7 +9,6 @@ __pycache__/
 *.gif
 *.npy
 *.zip
-*.json*
+zappa_settings.json
 *.pdf
 *.png
-*Pipfile*
