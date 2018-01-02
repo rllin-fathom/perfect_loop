@@ -4,7 +4,7 @@ FROM ubuntu:16.04
 RUN apt-get update -y
 
 # Install Python Setuptools
-RUN apt-get install -y python-setuptools
+RUN apt-get install -y setuptools
 
 # Install pip
 RUN easy_install pip
