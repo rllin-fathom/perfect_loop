@@ -1,23 +1,23 @@
- FROM ubuntu:14.04
+FROM ubuntu:14.04
 
- # Update packages
- RUN apt-get update -y
+# Update packages
+RUN apt-get update -y
 
- # Install Python Setuptools
- RUN apt-get install -y python-setuptools
+# Install Python Setuptools
+RUN apt-get install -y python-setuptools
 
- # Install pip
- RUN easy_install pip
+# Install pip
+RUN easy_install pip
 
- # Add and install Python modules
- ADD requirements.txt /src/requirements.txt
- RUN cd /src; pip install -r requirements.txt
+# Add and install Python modules
+ADD requirements.txt /src/requirements.txt
+RUN cd /src; pip install -r requirements.txt
 
- # Bundle app source
- ADD . /src
+# Bundle app source
+ADD . /src
 
- # Expose
- EXPOSE  5000
+# Expose
+EXPOSE  5000
 
- # Run
- CMD ["python", "/src/application.py"]
+# Run
+CMD ["python", "/src/application.py"]
