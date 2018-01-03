@@ -12,9 +12,9 @@ class Heroku(object):
     def assign_configs(self) -> None:
         local_keys = 'private_keys.json'
         remote_keys = '/etc/pki/tls/certs/private_keys.json'
-        if os.isfile(local_keys):
+        if os.path.isfile(local_keys):
             keys_path = local_keys
-        elif os.isfile(remote_keys):
+        elif os.path.isfile(remote_keys):
             keys_path = remote_keys
 
         with open(keys_path, 'r') as keys_f:
