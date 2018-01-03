@@ -16,6 +16,8 @@ class Heroku(object):
             keys_path = local_keys
         elif os.path.isfile(remote_keys):
             keys_path = remote_keys
+        else:
+            raise FileNotFoundError
 
         with open(keys_path, 'r') as keys_f:
             config = json.load(keys_f)
