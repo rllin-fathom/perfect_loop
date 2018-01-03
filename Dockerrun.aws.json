@@ -6,7 +6,7 @@
        "HostDirectory": "/var/app/current"
      },
      {
-       "ContainerDirectory": "/etc/piki/tls/certs",
+       "ContainerDirectory": "/etc/pki/tls/certs",
        "HostDirectory": "/etc/pki/tls/certs"
      }
    ],
