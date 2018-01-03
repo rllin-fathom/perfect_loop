@@ -23,4 +23,6 @@ RUN cd /src; pip install -r requirements.txt
 ADD . /src
 WORKDIR /src
 
+EXPOSE 5000
+
 CMD ["honcho", "start"]
