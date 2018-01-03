@@ -5,6 +5,7 @@
 !.elasticbeanstalk/*.global.yml
 
 keys.py
+private_keys.json
 __pycache__/
 *.gif
 *.npy
