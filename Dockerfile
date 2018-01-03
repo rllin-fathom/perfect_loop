@@ -21,9 +21,6 @@ RUN cd /src; pip install -r requirements.txt
 
 # Bundle app source
 ADD . /src
+WORKDIR /src
 
-# Expose
-EXPOSE  5000
-
-# Run
-CMD ["python", "/src/application.py"]
+CMD ["honcho", "start"]

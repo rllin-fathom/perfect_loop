@@ -1,5 +1,10 @@
  {
    "AWSEBDockerrunVersion": "1",
+   "Ports": [
+     {
+       "ContainerPort": "80"
+     }
+   ],
    "Volumes": [
      {
        "ContainerDirectory": "/var/app/current",

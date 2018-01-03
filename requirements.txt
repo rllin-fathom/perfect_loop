@@ -1,5 +1,6 @@
 #zappa==0.43.1
-#gunicorn==19.7.1
+gunicorn==19.7.1
+honcho
 boto3
 requests
 Flask
