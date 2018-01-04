@@ -25,4 +25,6 @@ WORKDIR /src
 
 EXPOSE 5000
 
+RUN apt-get -y install redis-server
+
 CMD ["honcho", "start"]
