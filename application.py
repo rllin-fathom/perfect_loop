@@ -32,10 +32,12 @@ app = Flask(__name__, template_folder=template_dir)
 app = Heroku(app).app
 app.config.from_object('config')
 
+REDIS_URL = 'redis://localhost:6379/0'
+#REDIS_URL = None
 Bootstrap(app)
 socketio = SocketIO(app,
                     async_mode='eventlet',
-                    message_queue=os.environ.get('REDIS_URL'))
+                    message_queue=REDIS_URL)
 
 s3 = S3Helper(app.config)
 celery = make_celery(app)
@@ -58,20 +60,34 @@ def index():
             socketio.emit('progress',
                           {'state': f'UPLOADING {progress} {endpoint}'},
                           namespace='/test')
-        api_summarize.delay(endpoint)
+
+        #r = add_together.delay(1, 2)
+        r = api_summarize.delay(endpoint)
         socketio.emit('progress',
-                      {'state': 'JOB SUBMITTED'},
+                      {'state': f'JOB SUBMITTED {r.status} {r.backend}'},
                       namespace='/test')
         return ('', 204)
     return render_template('index.html', form=form)
 
 
 @celery.task()
+def add_together(a, b):
+    socketio.emit('progress',
+                  {'state': 'add together called'},
+                  namespace='/test')
+    return a + b
+
+
+@celery.task()
 def api_summarize(endpoint: str) -> Dict:
+    socketio.emit('progress',
+                  {'state': 'summarize called'},
+                  namespace='/test')
     end_path = os.path.join(*PurePath(endpoint).parts[-2:])
     socketio.emit('progress',
                   {'state': 'PENDING'},
                   namespace='/test')
+
     r = requests.get(f'https://47rvlk4nx1.execute-api.us-west-2.amazonaws.com/',
                      f'production/video/{end_path}',
                      headers={'x-api-key': '11DgWhyjSt19rBujkY7c34FA79LbRrfbanjG0R2U'})

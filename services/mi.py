@@ -1,6 +1,6 @@
 
 from functools import partial
-from itertools import islice, chain
+from itertools import islice, chain, tee
 import os
 import tempfile
 from typing import Iterator, Tuple, List
@@ -74,19 +74,20 @@ def mutual_information(matrices, bins):
     hists = [np.histogram(matrix, bins=bins, range=h_range)
              for matrix, h_range in zip(matrices, h_ranges)]
 
-    entropy_1, entropy_2 = itertools.tee((entropy(hist) for hist, _ in hists), 2)
+    entropy_1, entropy_2 = tee((entropy(hist) for hist, _ in hists), 2)
     return (sum(entropy_1) - joint_entropy(*matrices, *h_ranges, bins),
             *entropy_2)
 
 
-def video_to_mi(vid) -> Iterator[float]:
+def video_to_mi(vid) -> Iterator[Tuple[float, float]]:
     """Window frames into pairs and apply mutual information."""
     num_frames = len(vid)
 
     windowed_frames = windowing(islice(vid, num_frames), 2)
     bin_ents = partial(mutual_information, bins=256)
-    for idx, (mii, ent, _) in enumerate(map(bin_ents, windowed_frames)):
-        yield sum(mii), ent
+    for idx, (mii, ent, *_) in enumerate(map(bin_ents, windowed_frames)):
+        print('sum: ', sum(mii), sum(ent))
+        yield (sum(mii), sum(ent))
 
 
 def trimmed_local_mean(data,
@@ -96,8 +97,9 @@ def trimmed_local_mean(data,
     m = np.ones(window_len)
     t_c = window_len // 2
     m[t_c] = 0
-    for idx, (mis, ents) in enumerate(windowing(data, window_len)):
-        if sum(m * mis) / (window_len - 1) / window[t_c] >= threshold:
+    for idx, data_part in enumerate(windowing(data, window_len)):
+        mis, ents = zip(*data_part)
+        if sum(m * mis) / (window_len - 1) / mis[t_c] >= threshold:
             yield idx + t_c
 
 
@@ -178,6 +180,7 @@ def video_to_s3(file_path: str, s3, max_gifs = 1):
 
 
 def scenes_to_summary(vid, scenes, fps, upload_dir, max_scenes):
+    print('max_scenes: ', type(max_scenes))
     scenes_images = islice(scenes_to_images(vid, scenes), max_scenes)
     # TODO: replace with a gif writer that can write frame by frame.
     images = list(chain.from_iterable(scene
@@ -187,26 +190,28 @@ def scenes_to_summary(vid, scenes, fps, upload_dir, max_scenes):
 
 def video_to_summary(file_path: str,
                      gfy_client,
-                     duration: float,
                      min_scene_secs: int,
-                     max_scenes: int) -> List[str]:
+                     max_scenes: int) -> Iterator[str]:
     upload_dir = os.path.basename(os.path.dirname(file_path))
 
     vid = imageio.get_reader(file_path, 'ffmpeg')
-    mis, ents = video_to_mi(vid)
-    boundaries = trimmed_local_mean(mis, window_len=24, threshold=1.4)
+    mis_and_ents = video_to_mi(vid)
+    boundaries = trimmed_local_mean(mis_and_ents, window_len=24, threshold=1.4)
     segs = segments(boundaries,
                     min_frames=int(24 * min_scene_secs),
                     offset=0.15)
     with tempfile.TemporaryDirectory() as tmp_dir:
         out_path = os.path.join(tmp_dir, 'summary.gif')
+        yield 'process'
         images = scenes_to_summary(vid=vid,
                                    scenes=segs,
                                    fps=24,
                                    upload_dir=upload_dir,
                                    max_scenes=max_scenes)
+        yield 'saving'
         to_gif(images, out_path, 24)
-        return gfy_client.upload_from_file(file_path=out_path)
+        yield 'upload'
+        gfy_client.upload_from_file(file_path=out_path)
 
 
 
