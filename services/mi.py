@@ -67,7 +67,7 @@ def apply_to_channel(func):
     return wrapped
 
 
-@apply_to_channel
+#@apply_to_channel
 def mutual_information(matrices, bins):
     h_ranges = [hist_range(matrix, bins) for matrix in matrices]
 
@@ -82,12 +82,31 @@ def mutual_information(matrices, bins):
 def video_to_mi(vid) -> Iterator[Tuple[float, float]]:
     """Window frames into pairs and apply mutual information."""
     num_frames = len(vid)
+    num_frames = 100
+    vid = map(lambda im: im[:, :, 1], vid)
+    print(f'{num_frames} frames in {vid}')
 
     windowed_frames = windowing(islice(vid, num_frames), 2)
     bin_ents = partial(mutual_information, bins=256)
-    for idx, (mii, ent, *_) in enumerate(map(bin_ents, windowed_frames)):
-        print('sum: ', sum(mii), sum(ent))
-        yield (sum(mii), sum(ent))
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    import time
+    results = dict()
+    prev_time = time.time()
+    with ThreadPoolExecutor(30) as executor:
+        jobs = {
+            executor.submit(bin_ents, frames): idx
+            for idx, frames in enumerate(windowed_frames)}
+        for future in as_completed(jobs):
+            mii, ent, *_ = future.result()
+            results[jobs[future]] = (3 * mii, 3 * ent)
+            print(jobs[future], 3 * mii, 3 * ent)
+            #results[jobs[future]] = (sum(mii), sum(ent))
+
+        #for idx, (mii, ent, *_) in enumerate(executor.map(bin_ents, windowed_frames)):
+    #for idx, (mii, ent, *_) in enumerate(map(bin_ents, windowed_frames)):
+            #print('sum: ', sum(mii), sum(ent), time.time() - prev_time)
+            #yield (sum(mii), sum(ent))
+    print((time.time() - prev_time) / num_frames)
 
 
 def trimmed_local_mean(data,
@@ -186,6 +205,34 @@ def scenes_to_summary(vid, scenes, fps, upload_dir, max_scenes):
     images = list(chain.from_iterable(scene
                                       for scene, _, _ in scenes_images))
     return images
+
+
+def yt_to_summary(url: str):
+    from pytube import YouTube
+    import tempfile
+    with tempfile.NamedTemporaryFile() as tmp_f:
+        YouTube('http://youtube.com/watch?v=9bZkp7q19f0').streams.first().download(tmp_f)
+        video_to_summary_local(file_path=tmp_f.name,
+                               min_scene_secs=2,
+                               max_scenes=5)
+
+
+def video_to_summary_local(file_path: str,
+                           min_scene_secs: int,
+                           max_scenes: int) -> Iterator[str]:
+    vid = imageio.get_reader(file_path, 'ffmpeg')
+    mis_and_ents = video_to_mi(vid)
+    boundaries = trimmed_local_mean(mis_and_ents, window_len=24, threshold=1.4)
+    segs = segments(boundaries,
+                    min_frames=int(24 * min_scene_secs),
+                    offset=0.15)
+
+    images = scenes_to_summary(vid=vid,
+                               scenes=segs,
+                               fps=24,
+                               upload_dir='',
+                               max_scenes=max_scenes)
+    to_gif(images, 'videos/summary.gif', 24)
 
 
 def video_to_summary(file_path: str,
