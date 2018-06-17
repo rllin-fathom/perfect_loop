@@ -23,7 +23,7 @@ RUN pip install \
 RUN pip install \
     imageio
 
-RUN pip install pytube
+RUN pip install pytube fire
 RUN python -c 'import imageio; imageio.plugins.ffmpeg.download()'
 ADD . /usr/src/app
 WORKDIR /usr/src/app
