@@ -211,7 +211,7 @@ def yt_to_summary(url: str):
     from pytube import YouTube
     import tempfile
     with tempfile.NamedTemporaryFile() as tmp_f:
-        YouTube('http://youtube.com/watch?v=9bZkp7q19f0').streams.first().download(tmp_f)
+        YouTube(url).streams.first().download(tmp_f)
         video_to_summary_local(file_path=tmp_f.name,
                                min_scene_secs=2,
                                max_scenes=5)
@@ -261,4 +261,7 @@ def video_to_summary(file_path: str,
         gfy_client.upload_from_file(file_path=out_path)
 
 
+if __name__ == '__main__':
+    import fire
+    fire.Fire({'yt_to_summary': yt_to_summary})
 
