@@ -82,7 +82,7 @@ def mutual_information(matrices, bins):
 def video_to_mi(vid) -> Iterator[Tuple[float, float]]:
     """Window frames into pairs and apply mutual information."""
     num_frames = len(vid)
-    num_frames = 100
+    #num_frames = 100
     vid = map(lambda im: im[:, :, 1], vid)
     print(f'{num_frames} frames in {vid}')
 
@@ -99,7 +99,7 @@ def video_to_mi(vid) -> Iterator[Tuple[float, float]]:
         for future in as_completed(jobs):
             mii, ent, *_ = future.result()
             results[jobs[future]] = (3 * mii, 3 * ent)
-            print(jobs[future], 3 * mii, 3 * ent)
+            #print(jobs[future], 3 * mii, 3 * ent)
             #results[jobs[future]] = (sum(mii), sum(ent))
 
         #for idx, (mii, ent, *_) in enumerate(executor.map(bin_ents, windowed_frames)):
