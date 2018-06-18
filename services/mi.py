@@ -210,8 +210,8 @@ def scenes_to_summary(vid, scenes, fps, upload_dir, max_scenes):
 def yt_to_summary(url: str):
     from pytube import YouTube
     import tempfile
-    yt = YouTube(url).streams.first().download('./tmp_video.mp4')
-    video_to_summary_local(file_path=yt,
+    yt = YouTube(url).streams.first().download(filename='tmp_video')
+    video_to_summary_local(file_path='./tmp_video.mp4',
                            min_scene_secs=2,
                            max_scenes=5)
 
