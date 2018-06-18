@@ -82,7 +82,7 @@ def mutual_information(matrices, bins):
 def video_to_mi(vid) -> Iterator[Tuple[float, float]]:
     """Window frames into pairs and apply mutual information."""
     num_frames = len(vid)
-    #num_frames = 100
+    num_frames = 1000
     vid = map(lambda im: im[:, :, 1], vid)
     print(f'{num_frames} frames in {vid}')
 
